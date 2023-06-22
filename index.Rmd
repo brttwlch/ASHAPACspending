@@ -25,15 +25,16 @@ library(kableExtra)
 library(janitor)
 library(pdftools)
 
+
 ```
 
 
 
 # Data
 
-## ASHA PAC's Spending{.tabset}
+## ASHA-PAC's Spending{.tabset}
 
-These data were obtained from [OpenSecrets.org](https://www.opensecrets.org/). Specifically data from ASHA PAC's spending on [2020 House and Senate candidates](https://www.opensecrets.org/political-action-committees-pacs/american-speech-language-hearing-assn/C00210666/candidate-recipients/2020) and [2022 House and Senate candidates](https://www.opensecrets.org/political-action-committees-pacs/american-speech-language-hearing-assn/C00210666/candidate-recipients/2022). 
+These data were obtained from [OpenSecrets.org](https://www.opensecrets.org/). Specifically data from ASHA-PAC's spending on [2020 House and Senate candidates](https://www.opensecrets.org/political-action-committees-pacs/american-speech-language-hearing-assn/C00210666/candidate-recipients/2020) and [2022 House and Senate candidates](https://www.opensecrets.org/political-action-committees-pacs/american-speech-language-hearing-assn/C00210666/candidate-recipients/2022). 
 
 ### 2020{.tabset}
 
@@ -100,14 +101,28 @@ asha_2020_rep$name <- str_squish(asha_2020_rep$name)
 
 ```
 
-A list of Representatives ASHA donated money to for their 2020 campaign
+A list of Representatives ASHA-PAC donated money to for their 2020 campaign
 
 ```{r}
 asha_2020_rep %>% 
   select(-candidate) %>%
   kbl(table.attr = "style = \"color: black;\"") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
-  scroll_box(width = "50%", height = "400px")
+  scroll_box(height = "400px")
+
+
+# asha_2020_rep %>%  #not a fan of the condensed form
+#   select(-candidate) %>%
+#   kbl(table.attr = "style = \"color: black;\"") %>%
+#   kable_styling(bootstrap_options = c("striped", "hover"), position = "left",
+#                 full_width = F) %>%
+#   scroll_box(height = "400px")
+
+# datatable(asha_2020_rep, #playing around with different table options
+#           rownames = F,
+#           height = "400px",
+#           class = "display",
+#           extensions = c("Responsive"))
 ```
 
 
@@ -181,14 +196,14 @@ asha_2020_sen$name <- str_squish(asha_2020_sen$name)
 
 ```
 
-A list of Senators that ASHA donated money to for their 2020 campaign.
+A list of Senators that ASHA-PAC donated money to for their 2020 campaign.
 
 ```{r}
 asha_2020_sen %>% 
   select(-candidate) %>%
   kbl(table.attr = "style = \"color: black;\"") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
-  scroll_box(width = "50%", height = "400px")
+  scroll_box(height = "400px")
 ```
 
 
@@ -264,14 +279,14 @@ asha_2022_rep$name <- str_squish(asha_2022_rep$name)
 
 ```
 
-A list of Representatives ASHA donated money to for their 2022 campaign
+A list of Representatives ASHA-PAC donated money to for their 2022 campaign
 
 ```{r}
 asha_2022_rep %>% 
   select(-candidate) %>%
   kbl(table.attr = "style = \"color: black;\"") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
-  scroll_box(width = "50%", height = "400px")
+  scroll_box(height = "400px")
 ```
 
 
@@ -347,14 +362,14 @@ asha_2022_sen$name <- str_squish(asha_2022_sen$name)
 
 ```
 
-A list of Senators that ASHA donated money to for their 2022 campaign
+A list of Senators that ASHA-PAC donated money to for their 2022 campaign
 
 ```{r}
 asha_2022_sen %>% 
   select(-candidate) %>%
   kbl(table.attr = "style = \"color: black;\"") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
-  scroll_box(width = "50%", height = "400px")
+  scroll_box(height = "400px")
 ```
 
 
@@ -369,24 +384,24 @@ asha_2022_sen <- asha_2022_sen %>%
     name == "John A Barrasso" ~ "John Barrasso",
     TRUE ~ name
   )) %>%
-  rename(ASHA_total = total) %>%
+  rename(ASHA_PAC_total = total) %>%
   mutate(year = 2022,
          role = "Senator")
 
-#rename total to ASHA_total, add role (senator/rep) and year for a single DF
+#rename total to ASHA_PAC_total, add role (senator/rep) and year for a single DF
 
 asha_2022_rep <- asha_2022_rep %>% 
-  rename(ASHA_total = total) %>%
+  rename(ASHA_PAC_total = total) %>%
   mutate(year = 2022,
          role = "Representative")
 
 asha_2020_rep <- asha_2020_rep %>% 
-  rename(ASHA_total = total) %>%
+  rename(ASHA_PAC_total = total) %>%
     mutate(year = 2020,
          role = "Representative")
 
 asha_2020_sen <- asha_2020_sen %>% 
-  rename(ASHA_total = total) %>%
+  rename(ASHA_PAC_total = total) %>%
     mutate(year = 2020,
          role = "Senator")
 
@@ -400,9 +415,11 @@ ashaPAC$name <- str_squish(ashaPAC$name) #get rid of extra spaces
 
 
 
+
 ## HRC Scorecard{.tabset}
 
 Data from [HRC's Scorecard on the 117th, 116th, and 115th Congress are available here](https://hrc-prod-requests.s3-us-west-2.amazonaws.com/assets/117th-Congressional-Scorecard_web.cleaned.pdf).
+
 
 ```{r}
 #I was originally prepared to enter these data manually, but figured out a way around this.
@@ -415,7 +432,7 @@ Data from [HRC's Scorecard on the 117th, 116th, and 115th Congress are available
 # ))
 ```
 
-### Code used to scrape data
+Code used to scrape data
 
 ```{r}
 #Please don't judge my code lol
@@ -1137,13 +1154,11 @@ hrc_rep <- bind_rows(hrc_rep, senators2)
 
 
 
-### Output{.tabset}
-
-Here are the members of the 117th Congress and their HRC scores
+Here are the members of the 117th Congress and their HRC scores on equality.
 
 
 
-#### Representatives
+### Representatives
 
 ```{r}
 hrc_rep <- hrc_rep %>%
@@ -1253,17 +1268,48 @@ hrc_rep_df <- bind_rows(hrc_rep_df, hrc_rep_df2)
 hrc_rep_df %>% unite("name", first_name, last_name, sep = " ", remove = F) %>%
   mutate(name = str_replace(name, "[[:punct:]]", "")) -> hrc_rep_df
 
-
+#clean up the names and remove additional spaces
 hrc_rep_df$name <- str_squish(hrc_rep_df$name)
 
+#Change columns to numeric and not characters
+hrc_rep_df$score_117 <- as.numeric(hrc_rep_df$score_117)
+hrc_rep_df$score_116 <- as.numeric(hrc_rep_df$score_116)
+hrc_rep_df$score_115 <- as.numeric(hrc_rep_df$score_115)
+
+```
+
+
+```{r}
+#calculate their average score based on previous voting record
+hrc_rep_df %>% 
+  select(-last_name, - first_name) %>% #drop columns for tidiness
+  pivot_longer(score_117:score_115, names_to = "session", values_to = "score") %>%
+  group_by(name) %>% #group reps
+  summarise(name = name,
+            avg_score = round(mean(score, na.rm = T),2)) %>%
+  unique() %>% #drop duplicates
+  ungroup() %>%
+  right_join(hrc_rep_df, by = "name") -> hrc_rep_df
+
+
+```
+
+
+The table below shows the House of Representatives and their scores of equality based on their voting record (when available). The column `avg_score` calculate the average of the available equality scores from the HRC. Not all Representatives served in prior congressional sessions, which is reflected by "NA" and does not count towards the `avg_score`. 
+
+```{r}
+#print table
 hrc_rep_df %>%
+  select(name, ID, avg_score, score_117, score_116, score_115) %>%
+  arrange(name)%>%
   kbl(table.attr = "style = \"color: black;\"") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
   scroll_box(height = "400px")
 ```
 
 
-#### Senators
+
+### Senators
 
 
 ```{r}
@@ -1336,17 +1382,46 @@ hrc_sen_df <- hrc_sen_df %>%
 TRUE ~ last_name
 ))
 
-hrc_sen_df %>%
-  kbl(table.attr = "style = \"color: black;\"") %>%
-  kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
-  scroll_box(height = "400px")
+
+# Convert scores to numeric
+
+hrc_sen_df$score_117 <- as.numeric(hrc_sen_df$score_117)
+hrc_sen_df$score_116 <- as.numeric(hrc_sen_df$score_116)
+hrc_sen_df$score_115 <- as.numeric(hrc_sen_df$score_115)
 
 ```
 
 
+```{r}
+#Calculate average score based on previous voting record
+
+hrc_sen_df %>%
+  select(-last_name, -first_name) %>% #drop columns for tidiness
+  pivot_longer(score_117:score_115, names_to = "session", values_to = "score") %>%
+  group_by(name) %>% #group reps
+  summarise(name = name,
+            avg_score = round(mean(score, na.rm = T),2)) %>%
+  unique() %>% #drop duplicates
+  ungroup() %>% #ungroup observations
+  right_join(hrc_sen_df, by = "name") -> hrc_sen_df
+
+```
+
+The table below shows the Senators and their scores of equality based on their voting record (when available). The column `avg_score` calculate the average of the available equality scores from the HRC. Not all Senators served in prior congressional sessions, which is reflected by "NA" and does not count towards the `avg_score`. 
+
+```{r}
+#print table
+hrc_sen_df %>%
+  select(name, ID, avg_score, score_117, score_116, score_115) %>%
+  arrange(name)%>%
+  kbl(table.attr = "style = \"color: black;\"") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
+  scroll_box(height = "400px")
+```
 
 
-# ASHA's Spending by HRC Score{.tabset}
+
+# ASHA-PAC's Spending by HRC Score{.tabset}
 
 ```{r}
 #Make sure names align across DFs
@@ -1426,7 +1501,10 @@ ashaPAC %>% mutate(name = case_when(
   TRUE ~ name
 )) -> ashaPAC
 
+#Remove dollar sign from ASHA-PAC total
 
+ashaPAC <- ashaPAC %>% mutate(ASHA_PAC_total = str_replace_all(ASHA_PAC_total, "\\$", ""))
+ashaPAC$ASHA_PAC_total<-as.numeric(ashaPAC$ASHA_PAC_total)
 ```
 
 
@@ -1443,43 +1521,23 @@ ashaPAC %>% mutate(name = case_when(
 
 
 
-```{r}
-#More cleaning of the data
-
-#Change columns to numeric and not characters
-hrc_rep_df$score_117 <- as.numeric(hrc_rep_df$score_117)
-hrc_rep_df$score_116 <- as.numeric(hrc_rep_df$score_116)
-hrc_rep_df$score_115 <- as.numeric(hrc_rep_df$score_115)
-
-
-hrc_sen_df$score_117 <- as.numeric(hrc_sen_df$score_117)
-hrc_sen_df$score_116 <- as.numeric(hrc_sen_df$score_116)
-hrc_sen_df$score_115 <- as.numeric(hrc_sen_df$score_115)
-
-#Remove dollar sign from asha total
-
-ashaPAC <- ashaPAC %>% mutate(ASHA_total = str_replace_all(ASHA_total, "\\$", ""))
-ashaPAC$ASHA_total<-as.numeric(ashaPAC$ASHA_total)
-
-
-```
-
-
-
 
 ## 2022{.tabset}
 
 
-### Senators
+### Senators{.tabset}
 
-Senators, their HRC scores, and the amount that ASHA has donated to their 2022 campaigns.
+Senators who won their race, their HRC scores, and the amount that ASHA-PAC has donated to their 2022 campaigns.
+
+
 
 ```{r}
-#Combine data from HRC and ASHA spending
+#Combine data from HRC and ASHA-PAC spending
 
-ashaPAC %>% select(name, party, state, ASHA_total, year, role) %>%
+ashaPAC %>% select(name, party, state, ASHA_PAC_total, year, role) %>%
   filter(year == "2022", role == "Senator") %>%
-  left_join(hrc_sen_df %>% select(name,score_117:score_115), by = "name") -> asha_2022_sen
+  left_join(hrc_sen_df %>% 
+              select(name,avg_score, score_117:score_115), by = "name") -> asha_2022_sen
 
 #add Markwayne Mullin's info from Representative HRC data
 
@@ -1493,24 +1551,26 @@ asha_2022_sen <- asha_2022_sen %>%
   score_115 = case_when(
   name == "Markwayne Mullin" ~ 0,
   TRUE ~ score_115),
-  )
+  avg_score = case_when(
+  name == "Markwayne Mullin" ~ (6/3),
+  TRUE ~ avg_score  
+  ))
 
 asha_2022_sen %>%
+  arrange(desc(ASHA_PAC_total)) %>%
+  relocate(name, ASHA_PAC_total, avg_score:score_115)%>%
   kbl(table.attr = "style = \"color: black;\"") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
   scroll_box(height = "400px")
 ```
 
-
-#### Total $ Donated
-
 ```{r}
-paste("The total amount of money ASHA donated to Senators' 2022 Campaigns:", sum(asha_2022_sen$ASHA_total), "dollars.")
+paste("The total amount of money ASHA-PAC donated to Senators' 2022 winning campaigns:", sum(asha_2022_sen$ASHA_PAC_total), "dollars.")
 ```
 
-#### Money by HRC Rating
+#### Money by Most Recent HRC Rating
 
-Let's split the scores into 0, 1-25, 26-50, 51-75, and 75-100 and see how much money is spent.
+Splitting the `score_117` into 0, 1-25, 26-50, 51-75, and 75-100 and see how much money is spent.
 
 ```{r}
 asha_2022_sen <- asha_2022_sen %>%
@@ -1524,12 +1584,12 @@ asha_2022_sen <- asha_2022_sen %>%
 
 asha_2022_sen %>% 
   group_by(groups_117) %>%
-  summarise(n = n(), money_spent = sum(ASHA_total),
+  summarise(n = n(), money_spent = sum(ASHA_PAC_total),
             percent_spent = round((money_spent/43000)*100,2)) %>%
   as_tibble() %>% rmarkdown::paged_table()
 ```
 
-ASHA donated: 
+ASHA-PAC donated: 
 
 - $14,000 to campaigns given an HRC score of less than 25 
 
@@ -1540,27 +1600,72 @@ ASHA donated:
 
 Approximately a third of their donations went towards candidates with a score of less than 25.
 
-### Representatives
+
+#### Money by Average HRC Rating
+
+Splitting the `avg_score` into 0, 1-25, 26-50, 51-75, and 75-100 and see how much money is spent.
 
 ```{r}
-ashaPAC %>% select(name, party, state, ASHA_total, year, role) %>%
+asha_2022_sen <- asha_2022_sen %>%
+  mutate(groups_avg = case_when(
+    avg_score == 0 ~ "0",
+    avg_score <= 25 ~ "1-25",
+    avg_score <= 50 ~ "26-50",
+    avg_score <= 75 ~ "51-75",
+    avg_score <= 100 ~ "76-100"
+  ))
+
+asha_2022_sen %>% 
+  group_by(groups_avg) %>%
+  summarise(n = n(), money_spent = sum(ASHA_PAC_total),
+            percent_spent = round((money_spent/43000)*100,2)) %>%
+  as_tibble() %>% rmarkdown::paged_table()
+```
+
+**Based on Senators' average score over the the most recent congressional sessions**
+
+ASHA-PAC donated: 
+
+- $11,500 to campaigns given an HRC score of less than 25 
+
+- $6,000 to campaigns given an HRC score between 26-50
+
+- $5,000 to campaigns given an HRC score between 51-75
+
+- $20,500 to campaigns given an HRC score above 75
+
+
+**Approximately 41% of their donations went to campaigns with an average record of an HRC equality score $\leq$ 50.** 
+
+
+
+### Representatives{.tabset}
+
+Representatives who won their race, their HRC scores, and the amount that ASHA-PAC has donated to their 2022 campaigns.
+
+```{r}
+ashaPAC %>% select(name, party, state, ASHA_PAC_total, year, role) %>%
   filter(year == "2022", role == "Representative") %>%
-  left_join(hrc_rep_df %>% select(name,score_117:score_115), by = "name") -> asha_2022_rep
+  left_join(hrc_rep_df %>% 
+              select(name,avg_score, score_117:score_115), by = "name") -> asha_2022_rep
 
 
 asha_2022_rep %>%
+  arrange(desc(ASHA_PAC_total)) %>%
+  relocate(name, ASHA_PAC_total, avg_score:score_115)%>%
   kbl(table.attr = "style = \"color: black;\"") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
   scroll_box(height = "400px")
 ```
 
-#### Total $ Donated
 
 ```{r}
-paste("The total amount of money ASHA donated to Representatives' 2022 Campaigns:", sum(asha_2022_rep$ASHA_total), "dollars.")
+paste("The total amount of money ASHA-PAC donated to Representatives' 2022 Campaigns:", sum(asha_2022_rep$ASHA_PAC_total), "dollars.")
 ```
 
-#### Money by HRC Rating
+#### Money by Most Recent HRC Rating
+
+Splitting the `score_117` into 0, 1-25, 26-50, 51-75, and 75-100 and see how much money is spent.
 
 ```{r}
 asha_2022_rep <- asha_2022_rep %>%
@@ -1574,13 +1679,13 @@ asha_2022_rep <- asha_2022_rep %>%
 
 asha_2022_rep %>% 
   group_by(groups_117) %>%
-  summarise(n = n(), money_spent = sum(ASHA_total),
+  summarise(n = n(), money_spent = sum(ASHA_PAC_total),
             percent_spent = round((money_spent/126500)*100,2)) %>%
   as_tibble() %>% rmarkdown::paged_table()
 ```
 
 
-ASHA donated: 
+ASHA-PAC donated: 
 
 - $32,000 to campaigns given an HRC score of 0 (over 25% of the total money spent)
 
@@ -1594,30 +1699,67 @@ That's $50,000 to campaigns with a score less than 50, or ~40% of their campaign
 
 ```{r}
 # asha_2022_rep %>%
-#   ggplot(aes(groups_117, ASHA_total)) + geom_bar(stat = "identity")
+#   ggplot(aes(groups_117, ASHA_PAC_total)) + geom_bar(stat = "identity")
 
 
 # asha_2022_rep %>%
-#   ggplot(aes(groups_117, ASHA_total)) + 
+#   ggplot(aes(groups_117, ASHA_PAC_total)) + 
 #   geom_boxplot(width = .5, outlier.shape = NA) +
 #   geom_jitter(width = .1, alpha = .5)+
 #   theme_minimal() +
 #   labs(x = "HRC Rating in 25pt intervals",
 #        y = "Inidivudal Campaign Donations Amount ($)",
-#        title = "ASHA's 2022 Representative Campaign Donations")+
+#        title = "ASHA-PAC's 2022 Representative Campaign Donations")+
 #   theme(plot.title = element_text(hjust = .5))
 ```
+
+
+#### Money by Average HRC Rating
+
+Splitting the `avg_score` into 0, 1-25, 26-50, 51-75, and 75-100 and see how much money is spent.
+
+```{r}
+asha_2022_rep <- asha_2022_rep %>%
+  mutate(groups_avg = case_when(
+    avg_score == 0 ~ "0",
+    avg_score <= 25 ~ "1-25",
+    avg_score <= 50 ~ "26-50",
+    avg_score <= 75 ~ "51-75",
+    avg_score <= 100 ~ "76-100"
+  ))
+
+asha_2022_rep %>% 
+  group_by(groups_avg) %>%
+  summarise(n = n(), money_spent = sum(ASHA_PAC_total),
+            percent_spent = round((money_spent/126500)*100,2)) %>%
+  as_tibble() %>% rmarkdown::paged_table()
+```
+
+**Based on Representatives' average score over the the most recent congressional sessions**
+
+ASHA-PAC donated: 
+
+- $32,000 to campaigns given an HRC score of 0 (over 25% of the total money spent)
+
+- $18,000 to campaigns given an HRC score of less than 25 
+
+- $76,500 to campaigns given an HRC score above 75
+
+That's 50,000 dollars to campaigns with an HRC equality score $\leq$ 50, or ~40% of their campaign donations.
 
 
 ## 2020{.tabset}
 
 
-### Senators
+### Senators{.tabset}
+
+Senators who won their race, their HRC scores, and the amount that ASHA-PAC donated to their 2020 campaigns.
 
 ```{r}
-ashaPAC %>% select(name, party, state, ASHA_total, year, role) %>%
+ashaPAC %>% select(name, party, state, ASHA_PAC_total, year, role) %>%
   filter(year == "2020", role == "Senator") %>%
-  left_join(hrc_sen_df %>% select(name,score_117:score_115), by = "name") -> asha_2020_sen
+  left_join(hrc_sen_df %>% 
+              select(name,avg_score, score_117:score_115), by = "name") -> asha_2020_sen
 
 asha_2020_sen <- asha_2020_sen %>%
   mutate(score_116 = case_when(
@@ -1626,21 +1768,27 @@ asha_2020_sen <- asha_2020_sen %>%
     score_115 = case_when(
     name == "Joe Kennedy III" ~ 100,
     TRUE ~ score_115
+    ),
+    avg_score = case_when(
+      name == "Joe Kennedy III" ~ 100,
+      TRUE ~ avg_score
     ))
 
 asha_2020_sen %>%
+  arrange(desc(ASHA_PAC_total)) %>%
+  relocate(name, ASHA_PAC_total, avg_score:score_115)%>%
   kbl(table.attr = "style = \"color: black;\"") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
   scroll_box(height = "400px")
 ```
 
-#### Total $ Donated
+Total $ Donated
 
 ```{r}
-paste("The total amount of money ASHA donated to Senators' 2020 Campaigns:", sum(asha_2020_sen$ASHA_total), "dollars.")
+paste("The total amount of money ASHA-PAC donated to Senators' 2020 Campaigns:", sum(asha_2020_sen$ASHA_PAC_total), "dollars.")
 ```
 
-#### Money by HRC Rating
+#### Money by Most Recent HRC Rating
 
 ```{r}
 asha_2020_sen <- asha_2020_sen %>%
@@ -1654,12 +1802,14 @@ asha_2020_sen <- asha_2020_sen %>%
 
 asha_2020_sen %>% 
   group_by(groups_117) %>%
-  summarise(n = n(), money_spent = sum(ASHA_total),
+  summarise(n = n(), money_spent = sum(ASHA_PAC_total),
             percent_spent = round((money_spent/27500)*100,2)) %>%
   as_tibble() %>% rmarkdown::paged_table()
 ```
 
-ASHA donated: 
+**Based on Senators' most recent HRC equality score**
+
+In 2020, ASHA-PAC donated: 
 
 - $9,000 to campaigns given an HRC score less than 25 
 
@@ -1669,12 +1819,48 @@ ASHA donated:
 
 Approximately a third of their donations went towards candidates with a score of less than 25.
 
-### Representatives
+#### Money by Average HRC Rating
 
 ```{r}
-ashaPAC %>% select(name, party, state, ASHA_total, year, role) %>%
+asha_2020_sen <- asha_2020_sen %>%
+  mutate(groups_avg = case_when(
+    avg_score == 0 ~ "0",
+    avg_score <= 25 ~ "1-25",
+    avg_score <= 50 ~ "26-50",
+    avg_score <= 75 ~ "51-75",
+    avg_score <= 100 ~ "76-100"
+  ))
+
+asha_2020_sen %>% 
+  group_by(groups_avg) %>%
+  summarise(n = n(), money_spent = sum(ASHA_PAC_total),
+            percent_spent = round((money_spent/27500)*100,2)) %>%
+  as_tibble() %>% rmarkdown::paged_table()
+```
+
+**Based on Senators' average HRC equality score**
+
+In 2020, ASHA-PAC donated: 
+
+- $9,000 to campaigns given an HRC score less than 25 
+
+- $3,500 to campaigns given an HRC score between 51-75
+
+- $15,000 to campaigns given an HRC score above 75
+
+**Approximately a third of their donations went towards candidates with an average score $\leq$ 25.**
+
+**Approximately 45% of their donations went towards candidates with an average score $\leq$ 50.**
+
+### Representatives{.tabset}
+
+Representatives who won their race, their HRC scores, and the amount that ASHA-PAC  donated to their 2020 campaigns.
+
+```{r}
+ashaPAC %>% select(name, party, state, ASHA_PAC_total, year, role) %>%
   filter(year == "2020", role == "Representative") %>%
-  left_join(hrc_rep_df %>% select(name,score_117:score_115), by = "name") -> asha_2020_rep
+  left_join(hrc_rep_df %>% 
+              select(name,avg_score, score_117:score_115), by = "name") -> asha_2020_rep
 
 #asha_2020_rep %>% filter(is.na(score_116))
 
@@ -1708,21 +1894,40 @@ asha_2020_rep <- asha_2020_rep %>%
       TRUE ~ score_115)
   )
 
+#Need to recalculate the average scores since I manually added in the above scores
 
 asha_2020_rep %>%
+  select(name, score_117:score_115) %>% #keep only relevant info
+  pivot_longer(score_117:score_115, names_to = "session", values_to = "score") %>%
+  group_by(name) %>%
+  summarise(name = name,
+            avg_score = round(mean(score, na.rm = T),2)) %>%
+  unique() %>%
+  ungroup() %>%
+  right_join(asha_2020_rep %>% select(-avg_score), by = "name") -> asha_2020_rep
+
+
+```
+
+
+```{r}
+asha_2020_rep %>%
+  arrange(desc(ASHA_PAC_total)) %>%
+  relocate(name, ASHA_PAC_total, avg_score, score_117:score_115)%>%
   kbl(table.attr = "style = \"color: black;\"") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
   scroll_box(height = "400px")
-
 ```
 
-#### Total $ Donated
+
+
+Total $ Donated
 
 ```{r}
-paste("The total amount of money ASHA donated to Representatives' 2020 Campaigns:", sum(asha_2020_rep$ASHA_total), "dollars.")
+paste("The total amount of money ASHA-PAC donated to Representatives' 2020 Campaigns:", sum(asha_2020_rep$ASHA_PAC_total), "dollars.")
 ```
 
-#### Money by HRC Rating
+#### Money by Most Recent HRC Rating
 
 ```{r}
 asha_2020_rep <- asha_2020_rep %>%
@@ -1736,12 +1941,12 @@ asha_2020_rep <- asha_2020_rep %>%
 
 asha_2020_rep %>% 
   group_by(groups_117) %>%
-  summarise(n = n(), money_spent = sum(ASHA_total),
+  summarise(n = n(), money_spent = sum(ASHA_PAC_total),
             percent_spent = round((money_spent/265500)*100,2)) %>%
   as_tibble() %>% rmarkdown::paged_table()
 ```
 
-ASHA donated: 
+In 2020, ASHA-PAC donated: 
 
 - $56,000 to campaigns given an HRC score of 0 (over 21% of the total money spent)
 
@@ -1756,11 +1961,40 @@ ASHA donated:
 $87,500 or approximately 32.96% of their total campaign spending went towards campaigns with a score of less than 50 in 2020. 
 
 
+#### Money by Average HRC Rating
 
+```{r}
+asha_2020_rep <- asha_2020_rep %>%
+  mutate(groups_avg = case_when(
+    avg_score == 0 ~ "0",
+    avg_score <= 25 ~ "1-25",
+    avg_score <= 50 ~ "26-50",
+    avg_score <= 75 ~ "51-75",
+    avg_score <= 100 ~ "76-100"
+  ))
 
+asha_2020_rep %>% 
+  group_by(groups_avg) %>%
+  summarise(n = n(), money_spent = sum(ASHA_PAC_total),
+            percent_spent = round((money_spent/265500)*100,2)) %>%
+  as_tibble() %>% rmarkdown::paged_table()
+```
 
+**Based on Representatives' average most recent HRC equality scores**
 
+In 2020, ASHA-PAC donated:
 
+- $57,000 to campaigns given an HRC score of 0 (over 21% of the total money spent)
+
+- $33,500 to campaigns given an HRC score of less than 25 
+
+- $6,000 to campaigns given an HRC score between 26-50
+
+- $1,00 to campaigns given an HRC score between 51-75
+
+- $167,00 to campaigns given an HRC score above 75
+
+96,500 or approximately 36.35% of their total campaign spending went towards campaigns with an average HRC equality score $\leq$ 50 in 2020. 
 
 
 
