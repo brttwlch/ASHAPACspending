@@ -24,7 +24,7 @@ library(gt)
 library(kableExtra)
 library(janitor)
 library(pdftools)
-
+library(plotly)
 
 ```
 
@@ -35,6 +35,195 @@ library(pdftools)
 ## ASHA-PAC's Spending{.tabset}
 
 These data were obtained from [OpenSecrets.org](https://www.opensecrets.org/). Specifically data from ASHA-PAC's spending on [2020 House and Senate candidates](https://www.opensecrets.org/political-action-committees-pacs/american-speech-language-hearing-assn/C00210666/candidate-recipients/2020) and [2022 House and Senate candidates](https://www.opensecrets.org/political-action-committees-pacs/american-speech-language-hearing-assn/C00210666/candidate-recipients/2022). 
+
+[Click here to see ASHA-PAC's Summary on OpenSecrets.org](https://www.opensecrets.org/political-action-committees-pacs/american-speech-language-hearing-assn/C00210666/summary/2022)
+
+[Click here to learn about ASHA-PAC and view their Frequently Asked Questions page.](https://www.asha.org/advocacy/pac/faqsashapac/)
+
+[Click here to see ASHA-PAC's current considerations when deciding who to donate to.](https://www.asha.org/advocacy/pac/candidate-contribution-criteria/)
+
+
+### 2022{.tabset}
+
+#### House
+
+```{r}
+asha_2022_rep <- read.csv("/Users/brett/Documents/R/PoliticalSpreadsheet/ASHA_PAC/ASHA_2022_candidateSpending_house.csv")
+
+asha_2022_rep %>% separate(Candidate, 
+                           into = c("Name", "ID"), 
+                           sep = "\\(",
+                           remove = F) %>%
+  separate(ID,
+           into = c("Party", "State"),
+           sep = "\\-") -> asha_2022_rep
+
+#Clean up state labels
+
+asha_2022_rep %>%
+  mutate(State = case_when(
+    State == "Fla)" ~ "FL",
+    State == "WVa)" ~ "WV",
+    State == "Mass)" ~ "MA",
+    State == "NJ)" ~ "NJ",
+    State == "Calif)" ~ "CA",
+    State == "Texas)" ~ "TX",
+    State == "Ky)" ~ "KY",
+    State == "Wash)" ~ "WA",
+    State == "NC)" ~ "NC",
+    State == "Wis)" ~ "WI",
+    State == "Ill)" ~ "IL",
+    State == "Va)" ~ "VA",
+    State == "Pa)" ~ "PA",
+    State == "NY)" ~ "NY",
+    State == "Del)" ~ "DE",
+    State == "Conn)" ~ "CT",
+    State == "Ore)" ~ "OR",
+    State == "Mich)" ~ "MI",
+    State == "Vt)" ~ "VT",
+    State == "Ohio)" ~ "OH",
+    State == "Colo)" ~ "CO",
+    State == "Md)" ~ "MD",
+    State == "SC)" ~ "SC",
+    State == "LA)" ~ "LA",
+    State == "La)" ~ "LA",
+    State == "Minn)" ~ "MN",
+    State == "Okla)" ~ "OK",
+    State == "Mo)" ~ "MO",
+    State == "Nev)" ~ "NV",
+    State == "Iowa)" ~ "IA",
+    State == "Ga)" ~ "GA",
+    State == "Ark)" ~ "AR",
+    State == "NH)" ~ "NH",
+    State == "Ariz)" ~ "AZ",
+    State == "Ala)" ~ "AL",
+    State == "Neb)" ~ "NE",
+    State == "Maine)" ~ "ME",
+    State == "Miss)" ~ "MS",
+    State == "NM)" ~ "NM",
+    State == "Ind)" ~ "IN",
+    State == "ND)" ~ "ND",
+    State == "Wyo)" ~ "WY",
+    State == "Utah)" ~ "UT",
+    
+    TRUE ~ State
+  )) -> asha_2022_rep
+
+asha_2022_rep <- asha_2022_rep %>% clean_names()
+
+asha_2022_rep$name <- str_squish(asha_2022_rep$name)
+
+#convert total column to numeric
+asha_2022_rep$total <- as.numeric(gsub("\\$", "", asha_2022_rep$total))
+
+```
+
+```{r}
+paste("In the 2022 election cycle, ASHA-PAC donated a total of $", sum(asha_2022_rep$total), "to Representatives' campaigns.")
+```
+
+
+A list of Representatives ASHA-PAC donated money to for their 2022 campaign
+
+```{r}
+asha_2022_rep %>% 
+  select(-candidate) %>%
+  kbl(table.attr = "style = \"color: black;\"") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
+  scroll_box(height = "400px")
+```
+
+
+#### Senate
+
+```{r}
+asha_2022_sen <- read.csv("/Users/brett/Documents/R/PoliticalSpreadsheet/ASHA_PAC/ASHA_2022_candidateSpending_senate.csv")
+
+asha_2022_sen %>% separate(Candidate, 
+                           into = c("Name", "ID"), 
+                           sep = "\\(",
+                           remove = F) %>%
+  separate(ID,
+           into = c("Party", "State"),
+           sep = "\\-") -> asha_2022_sen
+
+asha_2022_sen %>%
+  mutate(State = case_when(
+    State == "Fla)" ~ "FL",
+    State == "WVa)" ~ "WV",
+    State == "Mass)" ~ "MA",
+    State == "NJ)" ~ "NJ",
+    State == "Calif)" ~ "CA",
+    State == "Texas)" ~ "TX",
+    State == "Ky)" ~ "KY",
+    State == "Wash)" ~ "WA",
+    State == "NC)" ~ "NC",
+    State == "Wis)" ~ "WI",
+    State == "Ill)" ~ "IL",
+    State == "Va)" ~ "VA",
+    State == "Pa)" ~ "PA",
+    State == "NY)" ~ "NY",
+    State == "Del)" ~ "DE",
+    State == "Conn)" ~ "CT",
+    State == "Ore)" ~ "OR",
+    State == "Mich)" ~ "MI",
+    State == "Vt)" ~ "VT",
+    State == "Ohio)" ~ "OH",
+    State == "Colo)" ~ "CO",
+    State == "Md)" ~ "MD",
+    State == "SC)" ~ "SC",
+    State == "LA)" ~ "LA",
+    State == "La)" ~ "LA",
+    State == "Minn)" ~ "MN",
+    State == "Okla)" ~ "OK",
+    State == "Mo)" ~ "MO",
+    State == "Nev)" ~ "NV",
+    State == "Iowa)" ~ "IA",
+    State == "Ga)" ~ "GA",
+    State == "Ark)" ~ "AR",
+    State == "NH)" ~ "NH",
+    State == "Ariz)" ~ "AZ",
+    State == "Ala)" ~ "AL",
+    State == "Neb)" ~ "NE",
+    State == "Maine)" ~ "ME",
+    State == "Miss)" ~ "MS",
+    State == "NM)" ~ "NM",
+    State == "Ind)" ~ "IN",
+    State == "ND)" ~ "ND",
+    State == "Wyo)" ~ "WY",
+    State == "Utah)" ~ "UT",
+    State == "Alaska)" ~ "AK",
+    State == "SD)" ~ "SD",
+    
+    TRUE ~ State
+  )) -> asha_2022_sen
+
+asha_2022_sen <- asha_2022_sen %>% 
+  clean_names()
+
+asha_2022_sen$name <- str_squish(asha_2022_sen$name)
+
+#convert total column to numeric
+asha_2022_sen$total <- as.numeric(gsub("\\$", "", asha_2022_sen$total))
+
+```
+
+
+```{r}
+paste("In the 2022 election cycle, ASHA-PAC donated a total of $", sum(asha_2022_sen$total), "to Senators' campaigns.")
+```
+
+A list of Senators that ASHA-PAC donated money to for their 2022 campaign
+
+```{r}
+asha_2022_sen %>% 
+  select(-candidate) %>%
+  kbl(table.attr = "style = \"color: black;\"") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
+  scroll_box(height = "400px")
+```
+
+
 
 ### 2020{.tabset}
 
@@ -98,7 +287,13 @@ asha_2020_rep <- asha_2020_rep %>% clean_names()
 
 asha_2020_rep$name <- str_squish(asha_2020_rep$name)
 
+#convert total column to numeric
+asha_2020_rep$total <- as.numeric(gsub("\\$", "", asha_2020_rep$total))
+```
 
+
+```{r}
+paste("In the 2020 election cycle, ASHA-PAC donated a total of $", sum(asha_2020_rep$total), "to Representatives' campaigns.")
 ```
 
 A list of Representatives ASHA-PAC donated money to for their 2020 campaign
@@ -194,178 +389,20 @@ asha_2020_sen <- asha_2020_sen %>% clean_names()
 
 asha_2020_sen$name <- str_squish(asha_2020_sen$name)
 
+#convert total column to numeric
+asha_2020_sen$total <- as.numeric(gsub("\\$", "", asha_2020_sen$total))
+
+```
+
+
+```{r}
+paste("In the 2020 election cycle, ASHA-PAC donated a total of $", sum(asha_2020_sen$total), "to Senators' campaigns.")
 ```
 
 A list of Senators that ASHA-PAC donated money to for their 2020 campaign.
 
 ```{r}
 asha_2020_sen %>% 
-  select(-candidate) %>%
-  kbl(table.attr = "style = \"color: black;\"") %>%
-  kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
-  scroll_box(height = "400px")
-```
-
-
-### 2022{.tabset}
-
-#### House
-
-```{r}
-asha_2022_rep <- read.csv("/Users/brett/Documents/R/PoliticalSpreadsheet/ASHA_PAC/ASHA_2022_candidateSpending_house.csv")
-
-asha_2022_rep %>% separate(Candidate, 
-                           into = c("Name", "ID"), 
-                           sep = "\\(",
-                           remove = F) %>%
-  separate(ID,
-           into = c("Party", "State"),
-           sep = "\\-") -> asha_2022_rep
-
-#Clean up state labels
-
-asha_2022_rep %>%
-  mutate(State = case_when(
-    State == "Fla)" ~ "FL",
-    State == "WVa)" ~ "WV",
-    State == "Mass)" ~ "MA",
-    State == "NJ)" ~ "NJ",
-    State == "Calif)" ~ "CA",
-    State == "Texas)" ~ "TX",
-    State == "Ky)" ~ "KY",
-    State == "Wash)" ~ "WA",
-    State == "NC)" ~ "NC",
-    State == "Wis)" ~ "WI",
-    State == "Ill)" ~ "IL",
-    State == "Va)" ~ "VA",
-    State == "Pa)" ~ "PA",
-    State == "NY)" ~ "NY",
-    State == "Del)" ~ "DE",
-    State == "Conn)" ~ "CT",
-    State == "Ore)" ~ "OR",
-    State == "Mich)" ~ "MI",
-    State == "Vt)" ~ "VT",
-    State == "Ohio)" ~ "OH",
-    State == "Colo)" ~ "CO",
-    State == "Md)" ~ "MD",
-    State == "SC)" ~ "SC",
-    State == "LA)" ~ "LA",
-    State == "La)" ~ "LA",
-    State == "Minn)" ~ "MN",
-    State == "Okla)" ~ "OK",
-    State == "Mo)" ~ "MO",
-    State == "Nev)" ~ "NV",
-    State == "Iowa)" ~ "IA",
-    State == "Ga)" ~ "GA",
-    State == "Ark)" ~ "AR",
-    State == "NH)" ~ "NH",
-    State == "Ariz)" ~ "AZ",
-    State == "Ala)" ~ "AL",
-    State == "Neb)" ~ "NE",
-    State == "Maine)" ~ "ME",
-    State == "Miss)" ~ "MS",
-    State == "NM)" ~ "NM",
-    State == "Ind)" ~ "IN",
-    State == "ND)" ~ "ND",
-    State == "Wyo)" ~ "WY",
-    State == "Utah)" ~ "UT",
-    
-    TRUE ~ State
-  )) -> asha_2022_rep
-
-asha_2022_rep <- asha_2022_rep %>% clean_names()
-
-asha_2022_rep$name <- str_squish(asha_2022_rep$name)
-
-```
-
-A list of Representatives ASHA-PAC donated money to for their 2022 campaign
-
-```{r}
-asha_2022_rep %>% 
-  select(-candidate) %>%
-  kbl(table.attr = "style = \"color: black;\"") %>%
-  kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
-  scroll_box(height = "400px")
-```
-
-
-#### Senate
-
-```{r}
-asha_2022_sen <- read.csv("/Users/brett/Documents/R/PoliticalSpreadsheet/ASHA_PAC/ASHA_2022_candidateSpending_senate.csv")
-
-asha_2022_sen %>% separate(Candidate, 
-                           into = c("Name", "ID"), 
-                           sep = "\\(",
-                           remove = F) %>%
-  separate(ID,
-           into = c("Party", "State"),
-           sep = "\\-") -> asha_2022_sen
-
-asha_2022_sen %>%
-  mutate(State = case_when(
-    State == "Fla)" ~ "FL",
-    State == "WVa)" ~ "WV",
-    State == "Mass)" ~ "MA",
-    State == "NJ)" ~ "NJ",
-    State == "Calif)" ~ "CA",
-    State == "Texas)" ~ "TX",
-    State == "Ky)" ~ "KY",
-    State == "Wash)" ~ "WA",
-    State == "NC)" ~ "NC",
-    State == "Wis)" ~ "WI",
-    State == "Ill)" ~ "IL",
-    State == "Va)" ~ "VA",
-    State == "Pa)" ~ "PA",
-    State == "NY)" ~ "NY",
-    State == "Del)" ~ "DE",
-    State == "Conn)" ~ "CT",
-    State == "Ore)" ~ "OR",
-    State == "Mich)" ~ "MI",
-    State == "Vt)" ~ "VT",
-    State == "Ohio)" ~ "OH",
-    State == "Colo)" ~ "CO",
-    State == "Md)" ~ "MD",
-    State == "SC)" ~ "SC",
-    State == "LA)" ~ "LA",
-    State == "La)" ~ "LA",
-    State == "Minn)" ~ "MN",
-    State == "Okla)" ~ "OK",
-    State == "Mo)" ~ "MO",
-    State == "Nev)" ~ "NV",
-    State == "Iowa)" ~ "IA",
-    State == "Ga)" ~ "GA",
-    State == "Ark)" ~ "AR",
-    State == "NH)" ~ "NH",
-    State == "Ariz)" ~ "AZ",
-    State == "Ala)" ~ "AL",
-    State == "Neb)" ~ "NE",
-    State == "Maine)" ~ "ME",
-    State == "Miss)" ~ "MS",
-    State == "NM)" ~ "NM",
-    State == "Ind)" ~ "IN",
-    State == "ND)" ~ "ND",
-    State == "Wyo)" ~ "WY",
-    State == "Utah)" ~ "UT",
-    State == "Alaska)" ~ "AK",
-    State == "SD)" ~ "SD",
-    
-    TRUE ~ State
-  )) -> asha_2022_sen
-
-asha_2022_sen <- asha_2022_sen %>% 
-  clean_names()
-
-asha_2022_sen$name <- str_squish(asha_2022_sen$name)
-
-
-```
-
-A list of Senators that ASHA-PAC donated money to for their 2022 campaign
-
-```{r}
-asha_2022_sen %>% 
   select(-candidate) %>%
   kbl(table.attr = "style = \"color: black;\"") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
@@ -413,6 +450,45 @@ ashaPAC$name <- str_squish(ashaPAC$name) #get rid of extra spaces
 
 ```
 
+### At a Glance FINALIZE
+
+```{r}
+ashaPAC %>%
+  select(-candidate) %>%
+  filter(year == "2020") %>%
+  group_by(year, party) %>%
+  summarise(total_given = sum(ASHA_PAC_total))
+```
+
+
+```{r}
+ashaPAC %>%
+  select(-candidate) %>%
+  filter(year == "2022") %>%
+  group_by(year, party) %>%
+  summarise(total_given = sum(ASHA_PAC_total))
+```
+
+$169,500 to campaigns in 2022. 
+
+```{r}
+ashaPAC %>%
+  select(-candidate) %>%
+  group_by(year, party, role) %>%
+  summarise(total_given = sum(ASHA_PAC_total)) %>%
+  kbl(table.attr = "style = \"color: black;\"") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>%
+  scroll_box(height = "400px")
+
+
+#can probably make a prettier table w/ gt() but not urgent
+
+# ashaPAC %>%
+#   select(-candidate) %>%
+#   group_by(year, party, role) %>%
+#   summarise(total_given = sum(ASHA_PAC_total)) %>%
+#   gt() 
+```
 
 
 
@@ -420,96 +496,80 @@ ashaPAC$name <- str_squish(ashaPAC$name) #get rid of extra spaces
 
 Data from [HRC's Scorecard on the 117th, 116th, and 115th Congress are available here](https://hrc-prod-requests.s3-us-west-2.amazonaws.com/assets/117th-Congressional-Scorecard_web.cleaned.pdf).
 
-
-```{r}
-#I was originally prepared to enter these data manually, but figured out a way around this.
-
-# ashaPAC %>% mutate(score_117 = case_when(
-#   name == "Frank Pallone Jr." ~ 96,
-#   name == "Cathy McMorris Rodgers" ~ 0,
-#   name == "Gus Bilirakis" ~ 0,
-#   name == "Rodney Davis" ~ 26,
-# ))
-```
-
 Code used to scrape data
 
 ```{r}
-#Please don't judge my code lol
-#This was the first time I was scraping data from a PDF and did a lot of on-the-fly trouble shooting - I'm sure there was a more efficient way
-
+#Insert file path to the PDF
 hrc <- pdf_text("/Users/brett/Documents/R/PoliticalSpreadsheet/ASHA_PAC/117th-Congressional-Scorecard_web.cleaned.pdf")
 ```
 
 ```{r}
+
+###############################################################
+############################ Senate ###########################
+###############################################################
+
+
 ################# Page 8 
-#hrc[8]
 
-senators1 <- hrc[8]
-
-#strsplit(senators1, "\n")
-
-x1 <- strsplit(senators1, "\n")
-
-x1 <- x1[[1]]
-
-#x1
-
-
-x1 <- trimws(x1)
-
-
-x2 <- str_squish(x1)
- 
- 
-
-sen <- x2[4]
-sen <- as.data.frame(sen)
-
-sen <- rbind(sen, x2[6])
-
-sen <- rbind(sen, x2[9])
-sen <- rbind(sen, x2[10])
-sen <- rbind(sen, x2[13])
-sen <- rbind(sen, x2[14])
-sen <- rbind(sen, x2[16])
-sen <- rbind(sen, x2[17])
-sen <- rbind(sen, x2[20])
-sen <- rbind(sen, x2[21])
-sen <- rbind(sen, x2[24])
-sen <- rbind(sen, x2[25])
-sen <- rbind(sen, x2[27])
-sen <- rbind(sen, x2[28])
-sen <- rbind(sen, x2[30])
-sen <- rbind(sen, x2[31])
-sen <- rbind(sen, x2[33])
-sen <- rbind(sen, x2[34])
-sen <- rbind(sen, x2[36])
-sen <- rbind(sen, x2[38])
-sen <- rbind(sen, x2[41])
-sen <- rbind(sen, x2[42])
-sen <- rbind(sen, x2[45])
-sen <- rbind(sen, x2[47])
-sen <- rbind(sen, x2[49])
-sen <- rbind(sen, x2[50])
- 
 #Separate information into separate columns
+#there are 20 votes taken into account
 
-sen %>% separate(sen, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> sen2
+#hrc[8] 
 
-sen2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> sen2
+senators1 <- hrc[8] #extract page from PDF document
 
-sen2 <- sen2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
+senators1 <- strsplit(senators1, "\n") #Separate strings by new lines
 
-hrc_sen <- sen2
+senators1 <- senators1[[1]] #Only extract information we want
 
-#And now repeat for each page
+#senators1
 
-######################Page 9 
+senators1 <- str_squish(senators1) #remove all excess white space
+
+#senators1
+
+#new easier method
+senators1 <- as.data.frame(senators1) #transform into DF
+
+senators1 %>% filter(str_detect(senators1, "\\)")) -> senators1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#senators1[1,]
+
+#one row is retained that is not needed - remove
+senators1 <- senators1 %>% filter(senators1 != "SENATOR (Party) SCORE SCORE SCORE A B C D E F G H I J K L M N O P Q R S T")
+
+senators1 %>% separate(senators1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> senators1
+
+#separate votes into different categories
+senators1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                        "vote_tuberville",
+                                        "vote_johnLewis",
+                                        "vote_filibuster",
+                                        "vote_womensHealth",
+                                        "vote_saferCommunities",
+                                        "vote_lee",
+                                        "vote_respectForMarriage",
+                                        "vote_buttigieg",
+                                        "vote_levine",
+                                        "vote_jackson",
+                                        "vote_robinson",
+                                        "vote_nathan",
+                                        "vote_impeachment",
+                                        "vote_equalityAct",
+                                        "vote_DNHA",
+                                        "vote_TFPA",
+                                        "vote_SSIA",
+                                        "vote_IHRDA",
+                                        "vote_ECDFA",
+                                        "vote_PrEP"), 
+                 sep = " ") -> senators1
+
+senators1 <- senators1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
+
+############ Page 9 w/ newer method
 
 #hrc[9]
 
@@ -525,49 +585,51 @@ senators2 <- str_squish(senators2)
 
 #senators2
 
-sen <- senators2[4]
-sen <- as.data.frame(sen)
+#new easier method
+senators2 <- as.data.frame(senators2)
+#filter out rows that do not contain ) 
+senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
 
-sen <- rbind(sen, senators2[6])
-sen <- rbind(sen, senators2[9])
-sen <- rbind(sen, senators2[10])
-sen <- rbind(sen, senators2[13])
-sen <- rbind(sen, senators2[14])
-sen <- rbind(sen, senators2[16])
-sen <- rbind(sen, senators2[17])
-sen <- rbind(sen, senators2[20])
-sen <- rbind(sen, senators2[22])
-sen <- rbind(sen, senators2[24])
-sen <- rbind(sen, senators2[25])
-sen <- rbind(sen, senators2[27])
-sen <- rbind(sen, senators2[28])
-sen <- rbind(sen, senators2[30])
-sen <- rbind(sen, senators2[32])
-sen <- rbind(sen, senators2[35])
-sen <- rbind(sen, senators2[36])
-sen <- rbind(sen, senators2[39])
-sen <- rbind(sen, senators2[41])
-sen <- rbind(sen, senators2[44])
-sen <- rbind(sen, senators2[45])
-sen <- rbind(sen, senators2[47])
-sen <- rbind(sen, senators2[48])
-sen <- rbind(sen, senators2[50])
-sen <- rbind(sen, senators2[51])
+#senators2 <- senators2[-1,]
+#Filter out first row
+senators2 <- senators2 %>% 
+  filter(senators2 != "SENATOR (Party) SCORE SCORE SCORE A B C D E F G H I J K L M N O P Q R S T")
 
-sen %>% separate(sen, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> sen2
 
-sen2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> sen2
+senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> senators2
 
-sen2 <- sen2 %>% select(-score1) %>%
+senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                        "vote_tuberville",
+                                        "vote_johnLewis",
+                                        "vote_filibuster",
+                                        "vote_womensHealth",
+                                        "vote_saferCommunities",
+                                        "vote_lee",
+                                        "vote_respectForMarriage",
+                                        "vote_buttigieg",
+                                        "vote_levine",
+                                        "vote_jackson",
+                                        "vote_robinson",
+                                        "vote_nathan",
+                                        "vote_impeachment",
+                                        "vote_equalityAct",
+                                        "vote_DNHA",
+                                        "vote_TFPA",
+                                        "vote_SSIA",
+                                        "vote_IHRDA",
+                                        "vote_ECDFA",
+                                        "vote_PrEP"), 
+                 sep = " ") -> senators2
+
+senators2 <- senators2 %>% select(-score1) %>%
   rename(score1 = score2, score2 = score3, score3 = score4) %>%
   select(-votes)
 
-hrc_sen <- bind_rows(hrc_sen, sen2)
 
+hrc_sen <- bind_rows(senators1, senators2) 
 
-############## Page 10
+################ Page 10
 
 #hrc[10]
 
@@ -583,52 +645,73 @@ senators2 <- str_squish(senators2)
 
 #senators2
 
-sen <- senators2[4]
-sen <- as.data.frame(sen)
+#new easier method
+senators2 <- as.data.frame(senators2)
+#filter out rows that do not contain ) 
+senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
 
-sen <- rbind(sen, senators2[6])
-sen <- rbind(sen, senators2[9])
-sen <- rbind(sen, senators2[10])
-sen <- rbind(sen, senators2[13])
-sen <- rbind(sen, senators2[14])
-sen <- rbind(sen, senators2[17])
-sen <- rbind(sen, senators2[18])
-sen <- rbind(sen, senators2[21])
-sen <- rbind(sen, senators2[23])
-sen <- rbind(sen, senators2[25])
-sen <- rbind(sen, senators2[26])
-sen <- rbind(sen, senators2[28])
-sen <- rbind(sen, senators2[29])
-sen <- rbind(sen, senators2[31])
-sen <- rbind(sen, senators2[33])
-sen <- rbind(sen, senators2[36])
-sen <- rbind(sen, senators2[37])
-sen <- rbind(sen, senators2[40])
-sen <- rbind(sen, senators2[42])
-sen <- rbind(sen, senators2[45])
-sen <- rbind(sen, senators2[46])
-sen <- rbind(sen, senators2[48])
-sen <- rbind(sen, senators2[49])
-sen <- rbind(sen, senators2[51])
-sen <- rbind(sen, senators2[52])
+#Chuck Schumer's row becomes misaligned due to the footnotes
+#Initial value:
+#senators2[13,]
+# "I LEVINE Schumer, Charles (D) 3, 4 100 100 100 v v v v v v v v v v v v v v N/A N/A N/A v N/A N/A"
+
+#Changing value to remove the "3, 4"
+
+senators2[13,] <- "I LEVINE Schumer, Charles (D) 100 100 100 v v v v v v v v v v v v v v N/A N/A N/A v N/A N/A"
 
 
-sen %>% separate(sen, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> sen2
+# Robert Casey Jr.'s row also becomse misaligned due to foot notes
+#Initial value:
+#senators2[24,]
+# "R IHRDA Casey Jr., Robert (D) 5 98 97 97 v v v v v v v v v v v J v v j v v v v v"
+# Removing the 5
 
-sen2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> sen2
+senators2[24,] <- "R IHRDA Casey Jr., Robert (D) 98 97 97 v v v v v v v v v v v J v v j v v v v v"
 
-sen2 <- sen2 %>% select(-score1) %>%
+
+
+#senators2 <- senators2[-1,]
+#Filter out first row
+senators2 <- senators2 %>% 
+  filter(senators2 != "SENATOR (Party) SCORE SCORE SCORE A B C D E F G H I J K L M N O P Q R S T")
+
+
+
+
+senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> senators2
+
+senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                        "vote_tuberville",
+                                        "vote_johnLewis",
+                                        "vote_filibuster",
+                                        "vote_womensHealth",
+                                        "vote_saferCommunities",
+                                        "vote_lee",
+                                        "vote_respectForMarriage",
+                                        "vote_buttigieg",
+                                        "vote_levine",
+                                        "vote_jackson",
+                                        "vote_robinson",
+                                        "vote_nathan",
+                                        "vote_impeachment",
+                                        "vote_equalityAct",
+                                        "vote_DNHA",
+                                        "vote_TFPA",
+                                        "vote_SSIA",
+                                        "vote_IHRDA",
+                                        "vote_ECDFA",
+                                        "vote_PrEP"), 
+                 sep = " ") -> senators2
+
+senators2 <- senators2 %>% select(-score1) %>%
   rename(score1 = score2, score2 = score3, score3 = score4) %>%
   select(-votes)
 
-hrc_sen <- bind_rows(hrc_sen, sen2)
 
-#Bob Casey's line gets messed up here
+hrc_sen <- bind_rows(hrc_sen, senators2) 
 
-
-##################### Page 11
+########## Page 11
 
 #hrc[11]
 
@@ -644,510 +727,1225 @@ senators2 <- str_squish(senators2)
 
 #senators2
 
-sen <- senators2[4]
-sen <- as.data.frame(sen)
+#new easier method
+senators2 <- as.data.frame(senators2)
+#filter out rows that do not contain ) 
+senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
 
-sen <- rbind(sen, senators2[6])
-sen <- rbind(sen, senators2[9])
-sen <- rbind(sen, senators2[10])
-sen <- rbind(sen, senators2[13])
-sen <- rbind(sen, senators2[14])
-sen <- rbind(sen, senators2[17])
-sen <- rbind(sen, senators2[18])
-sen <- rbind(sen, senators2[21])
-sen <- rbind(sen, senators2[23])
-sen <- rbind(sen, senators2[25])
-sen <- rbind(sen, senators2[26])
-sen <- rbind(sen, senators2[28])
-sen <- rbind(sen, senators2[29])
-sen <- rbind(sen, senators2[31])
-sen <- rbind(sen, senators2[32])
-sen <- rbind(sen, senators2[35])
-sen <- rbind(sen, senators2[36])
-sen <- rbind(sen, senators2[39])
-sen <- rbind(sen, senators2[41])
-sen <- rbind(sen, senators2[44])
-sen <- rbind(sen, senators2[45])
+senators2 <- senators2 %>% 
+  filter(senators2 != "SENATOR (Party) SCORE SCORE SCORE A B C D E F G H I J K L M N O P Q R S T")
 
 
-sen %>% separate(sen, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> sen2
 
-sen2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> sen2
 
-sen2 <- sen2 %>% select(-score1) %>%
+senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> senators2
+
+senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                        "vote_tuberville",
+                                        "vote_johnLewis",
+                                        "vote_filibuster",
+                                        "vote_womensHealth",
+                                        "vote_saferCommunities",
+                                        "vote_lee",
+                                        "vote_respectForMarriage",
+                                        "vote_buttigieg",
+                                        "vote_levine",
+                                        "vote_jackson",
+                                        "vote_robinson",
+                                        "vote_nathan",
+                                        "vote_impeachment",
+                                        "vote_equalityAct",
+                                        "vote_DNHA",
+                                        "vote_TFPA",
+                                        "vote_SSIA",
+                                        "vote_IHRDA",
+                                        "vote_ECDFA",
+                                        "vote_PrEP"), 
+                 sep = " ") -> senators2
+
+senators2 <- senators2 %>% select(-score1) %>%
   rename(score1 = score2, score2 = score3, score3 = score4) %>%
   select(-votes)
 
-hrc_sen <- bind_rows(hrc_sen, sen2)
+
+hrc_sen <- bind_rows(hrc_sen, senators2) 
 
 
-################ REPRESENTATIVES
-
-#I'm not going to change the variable names because I'm lazy
-#Yes, I am using terrible variable naming practices :')
+###############################################################
+###################### House of Representatives ###############
+###############################################################
 
 ############### Page 17
 
-#hrc[17]
+#hrc[17] 
 
-senators2 <- hrc[17]
+reps1 <- hrc[17] #extract page from PDF document
 
-senators2 <- strsplit(senators2, "\n")
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
 
-senators2 <- senators2[[1]]
+reps1 <- reps1[[1]] #Only extract information we want
 
-#senators2
+#reps1
 
-senators2 <- str_squish(senators2)
+reps1 <- str_squish(reps1) #remove all excess white space
 
-#senators2
+#reps1
+
+#new easier method
+reps1 <- as.data.frame(reps1) #transform into DF
+
+#Raúl Grijalva's votes not transcribe correctly due to line break
+#reps1[21,] = "LESKO AND FOXX/ 3 Grijalva, Raúl (D) 100 100 100"
+
+reps1[21,] <- "LESKO AND FOXX/ 3 Grijalva, Raúl (D) 100 100 100 v v v v v v v v v v v v v v v v v v v v v"
+
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#reps1[1,]
+
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
+
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
 
 
-sen <- senators2[5]
-sen <- as.data.frame(sen)
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
 
-sen <- rbind(sen, senators2[6])
-sen <- rbind(sen, senators2[7])
-sen <- rbind(sen, senators2[9])
-sen <- rbind(sen, senators2[11])
-sen <- rbind(sen, senators2[12])
-sen <- rbind(sen, senators2[13])
-sen <- rbind(sen, senators2[16])
-sen <- rbind(sen, senators2[19])
-sen <- rbind(sen, senators2[20])
-sen <- rbind(sen, senators2[21])
-sen <- rbind(sen, senators2[24])
-sen <- rbind(sen, senators2[27])
-sen <- rbind(sen, senators2[28])
-sen <- rbind(sen, senators2[29])
-sen <- rbind(sen, senators2[30])
-sen <- rbind(sen, senators2[32])
-sen <- rbind(sen, senators2[34])
-sen <- rbind(sen, senators2[35])
-sen <- rbind(sen, senators2[36])
-sen <- rbind(sen, senators2[38])
-sen <- rbind(sen, senators2[40])
-sen <- rbind(sen, senators2[41])
-sen <- rbind(sen, senators2[42])
-sen <- rbind(sen, senators2[43])
-sen <- rbind(sen, senators2[44])
-sen <- rbind(sen, senators2[45])
-sen <- rbind(sen, senators2[46])
-sen <- rbind(sen, senators2[47])
-sen <- rbind(sen, senators2[49])
-sen <- rbind(sen, senators2[50])
-sen <- rbind(sen, senators2[52])
-sen <- rbind(sen, senators2[53])
-
-
-sen %>% separate(sen, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> sen2
-
-sen2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> sen2
-
-sen2 <- sen2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
-
-hrc_rep <- sen2
-
+hrc_reps <- reps1
 
 ############### Page 18
 
-#hrc[18]
+#hrc[18] 
 
-senators2 <- hrc[18]
+reps1 <- hrc[18] #extract page from PDF document
 
-senators2 <- strsplit(senators2, "\n")
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
 
-senators2 <- senators2[[1]]
+reps1 <- reps1[[1]] #Only extract information we want
 
-#senators2
+#reps1
 
-senators2 <- str_squish(senators2)
+reps1 <- str_squish(reps1) #remove all excess white space
 
-#senators2
-
-#new easier method
-senators2 <- as.data.frame(senators2)
-
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
-
-#senators2 <- senators2[-1,]
-
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
-
-
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
-
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
-
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
-
-hrc_rep <- bind_rows(hrc_rep, senators2)
-
-##################### Page 19
-
-#hrc[19]
-
-senators2 <- hrc[19]
-
-senators2 <- strsplit(senators2, "\n")
-
-senators2 <- senators2[[1]]
-
-#senators2
-
-senators2 <- str_squish(senators2)
-
-#senators2
+#reps1
 
 #new easier method
-senators2 <- as.data.frame(senators2)
+reps1 <- as.data.frame(reps1) #transform into DF
 
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
+#### Check and make any changes to lines that were incorrectly transcribed
+#reps1[22,] = "LESKO AND FOXX/ 26 Brownley, Julia (D) 100 100 100"
 
-#senators2 <- senators2[-1,]
+reps1[22,] <- "LESKO AND FOXX/ 26 Brownley, Julia (D) 100 100 100 v v v v v v v v v v v v v v v v v v v v v"
 
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
 
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
 
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
+#reps1[1,]
 
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
 
-hrc_rep <- bind_rows(hrc_rep, senators2)
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
 
-################ Page 20
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
 
-#hrc[20]
 
-senators2 <- hrc[20]
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
 
-senators2 <- strsplit(senators2, "\n")
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
 
-senators2 <- senators2[[1]]
+############### Page 19
 
-#senators2
+#hrc[19] 
 
-senators2 <- str_squish(senators2)
+reps1 <- hrc[19] #extract page from PDF document
 
-#senators2
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
 
-#new easier method
-senators2 <- as.data.frame(senators2)
+reps1 <- reps1[[1]] #Only extract information we want
 
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
+#reps1
 
-#senators2 <- senators2[-1,]
+reps1 <- str_squish(reps1) #remove all excess white space
 
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
-
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
-
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
-
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
-
-hrc_rep <- bind_rows(hrc_rep, senators2)
-
-################# Page 21
-#hrc[21]
-
-senators2 <- hrc[21]
-
-senators2 <- strsplit(senators2, "\n")
-
-senators2 <- senators2[[1]]
-
-#senators2
-
-senators2 <- str_squish(senators2)
-
-#senators2
+#reps1
 
 #new easier method
-senators2 <- as.data.frame(senators2)
+reps1 <- as.data.frame(reps1) #transform into DF
 
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
+#### Check and make any changes to lines that were incorrectly transcribed
+#reps1[22,] = "LESKO AND FOXX/ 2 Courtney, Joe (D) 100 100 100"
 
-#senators2 <- senators2[-1,]
-
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
-
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
-
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
-
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
-
-hrc_rep <- bind_rows(hrc_rep, senators2)
-
-################### Page 22
-
-#hrc[22]
-senators2 <- hrc[22]
-senators2 <- strsplit(senators2, "\n")
-senators2 <- senators2[[1]]
-#senators2
-senators2 <- str_squish(senators2)
-#senators2
-senators2 <- as.data.frame(senators2)
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+reps1[22,] <- "LESKO AND FOXX/ 2 Courtney, Joe (D) 100 100 100 v v v v v v v v v v v v v v v v v v v v v"
 
 
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
 
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
+#reps1[1,]
 
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
 
-hrc_rep <- bind_rows(hrc_rep, senators2)
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
 
-
-################ Page 23
-
-#hrc[23]
-senators2 <- hrc[23]
-senators2 <- strsplit(senators2, "\n")
-senators2 <- senators2[[1]]
-#senators2
-senators2 <- str_squish(senators2)
-#senators2
-
-senators2 <- as.data.frame(senators2)
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
-
-
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
-
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
-
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
-
-hrc_rep <- bind_rows(hrc_rep, senators2)
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
 
 
-################ Page 24
-#hrc[24]
-senators2 <- hrc[24]
-senators2 <- strsplit(senators2, "\n")
-senators2 <- senators2[[1]]
-#senators2
-senators2 <- str_squish(senators2)
-#senators2
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
+
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
+
+############### Page 20
+
+#hrc[20] 
+
+reps1 <- hrc[20] #extract page from PDF document
+
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
+
+reps1 <- reps1[[1]] #Only extract information we want
+
+#reps1
+
+reps1 <- str_squish(reps1) #remove all excess white space
+
+#reps1
+
+#new easier method
+reps1 <- as.data.frame(reps1) #transform into DF
+
+#### Check and make any changes to lines that were incorrectly transcribed
+#reps1[22,] = "LESKO AND FOXX/ 4 Johnson Jr., Henry “Hank” (D) 100 100 100"
+
+reps1[22,] <- "LESKO AND FOXX/ 4 Johnson Jr., Henry “Hank” (D) 100 100 100 v v v v v v v v v v v v v v v v v v v v v"
 
 
-senators2 <- as.data.frame(senators2)
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#reps1[1,]
+
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
+
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
 
 
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
 
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
-
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
-
-hrc_rep <- bind_rows(hrc_rep, senators2)
-
-################# Page 25
-
-#hrc[25]
-senators2 <- hrc[25]
-senators2 <- strsplit(senators2, "\n")
-senators2 <- senators2[[1]]
-#senators2
-senators2 <- str_squish(senators2)
-#senators2
-
-senators2 <- as.data.frame(senators2)
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
-
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
-
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
-
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
-
-hrc_rep <- bind_rows(hrc_rep, senators2)
-
-################# Page 26
-
-#hrc[26]
-senators2 <- hrc[26]
-senators2 <- strsplit(senators2, "\n")
-senators2 <- senators2[[1]]
-#senators2
-senators2 <- str_squish(senators2)
-#senators2
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
 
 
-senators2 <- as.data.frame(senators2)
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+############### Page 21
 
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
+#hrc[21] 
 
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
+reps1 <- hrc[21] #extract page from PDF document
 
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
 
-hrc_rep <- bind_rows(hrc_rep, senators2)
+reps1 <- reps1[[1]] #Only extract information we want
 
+#reps1
 
-################### Page 27
+reps1 <- str_squish(reps1) #remove all excess white space
 
-#hrc[27]
-senators2 <- hrc[27]
-senators2 <- strsplit(senators2, "\n")
-senators2 <- senators2[[1]]
-#senators2
-senators2 <- str_squish(senators2)
-#senators2
+#reps1
+
+#new easier method
+reps1 <- as.data.frame(reps1) #transform into DF
+
+#### Check and make any changes to lines that were incorrectly transcribed
+#reps1[22,] = "LESKO AND FOXX/ 2 Yakym, Rudy (R)9 N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A"
+
+reps1[22,] <- "LESKO AND FOXX/ 2 Yakym, Rudy (R)9 N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A N/A j N/A j j j j j v"
 
 
-senators2 <- as.data.frame(senators2)
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#reps1[1,]
+
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
+
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
 
 
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
 
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
 
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
 
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
+############### Page 22
 
-hrc_rep <- bind_rows(hrc_rep, senators2)
+#hrc[22] 
+
+reps1 <- hrc[22] #extract page from PDF document
+
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
+
+reps1 <- reps1[[1]] #Only extract information we want
+
+#reps1
+
+reps1 <- str_squish(reps1) #remove all excess white space
+
+#reps1
+
+#new easier method
+reps1 <- as.data.frame(reps1) #transform into DF
+
+#### Check and make any changes to lines that were incorrectly transcribed
+
+#No known issues with this page
+# 
+# 
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#reps1[1,]
+
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
+
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
+
+
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
+
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
+
+############### Page 23
+
+#hrc[23] 
+
+reps1 <- hrc[23] #extract page from PDF document
+
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
+
+reps1 <- reps1[[1]] #Only extract information we want
+
+#reps1
+
+reps1 <- str_squish(reps1) #remove all excess white space
+
+#reps1
+
+#new easier method
+reps1 <- as.data.frame(reps1) #transform into DF
+
+#### Check and make any changes to lines that were incorrectly transcribed
+#reps1[22,] = "LESKO AND FOXX/ 6 Emmer, Tom (R) 14 0 0"
+
+reps1[22,] <- "LESKO AND FOXX/ 6 Emmer, Tom (R) 14 0 0 j j j j j v j j j j j j v v j j j j j j j"
+
+
+# 
+# 
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#reps1[1,]
+
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
+
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
+
+
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
+
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
+
+
+############### Page 24
+
+#hrc[24] 
+
+reps1 <- hrc[24] #extract page from PDF document
+
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
+
+reps1 <- reps1[[1]] #Only extract information we want
+
+#reps1
+
+reps1 <- str_squish(reps1) #remove all excess white space
+
+#reps1
+
+#new easier method
+reps1 <- as.data.frame(reps1) #transform into DF
+
+#### Check and make any changes to lines that were incorrectly transcribed
+#reps1[22,] = "LESKO AND FOXX/ 5 Gottheimer, Josh (D) 100 100 100"
+
+reps1[22,] <- "LESKO AND FOXX/ 5 Gottheimer, Josh (D) 100 100 100 v v v v v v v v v v v v v v v v v v v v v"
+
+
+# 
+# 
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#reps1[1,]
+
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
+
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
+
+
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
+
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
+
+
+############### Page 25
+
+#hrc[25] 
+
+reps1 <- hrc[25] #extract page from PDF document
+
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
+
+reps1 <- reps1[[1]] #Only extract information we want
+
+#reps1
+
+reps1 <- str_squish(reps1) #remove all excess white space
+
+#reps1
+
+#new easier method
+reps1 <- as.data.frame(reps1) #transform into DF
+
+#### Check and make any changes to lines that were incorrectly transcribed
+#reps1[22,] = "LESKO AND FOXX/ 24 Katko, John (R) 68 54 61"
+
+reps1[22,] <- "LESKO AND FOXX/ 24 Katko, John (R) 68 54 61 v j j j v v v j v v v v v v v j j v j j v"
+
+
+# 
+# 
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#reps1[1,]
+
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
+
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
+
+
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
+
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
+
+
+############### Page 26
+
+#hrc[26] 
+
+reps1 <- hrc[26] #extract page from PDF document
+
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
+
+reps1 <- reps1[[1]] #Only extract information we want
+
+#reps1
+
+reps1 <- str_squish(reps1) #remove all excess white space
+
+#reps1
+
+#new easier method
+reps1 <- as.data.frame(reps1) #transform into DF
+
+#### Check and make any changes to lines that were incorrectly transcribed
+#reps1[22,] = "LESKO AND FOXX/ 13 Ryan, Tim (D) 100 100 100"
+
+reps1[22,] <- "LESKO AND FOXX/ 13 Ryan, Tim (D) 100 100 100 v v v v v v v v v v v v v v v v v v v v v"
+
+
+# 
+# 
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#reps1[1,]
+
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
+
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
+
+
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
+
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
+
+
+############### Page 27
+
+#hrc[27] 
+
+reps1 <- hrc[27] #extract page from PDF document
+
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
+
+reps1 <- reps1[[1]] #Only extract information we want
+
+#reps1
+
+reps1 <- str_squish(reps1) #remove all excess white space
+
+#reps1
+
+#new easier method
+reps1 <- as.data.frame(reps1) #transform into DF
+
+#### Check and make any changes to lines that were incorrectly transcribed
+#reps1[21,] = "LESKO AND FOXX/ 1 Cicilline, David (D) 100 100 100"
+
+reps1[21,] <- "LESKO AND FOXX/ 1 Cicilline, David (D) 100 100 100 v v v v v v v v v v v v v v v v v v v v v"
+
+
+# 
+# 
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#reps1[1,]
+
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
+
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
+
+
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
+
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
+
 
 ############### Page 28
 
-#hrc[28]
-senators2 <- hrc[28]
-senators2 <- strsplit(senators2, "\n")
-senators2 <- senators2[[1]]
-#senators2
-senators2 <- str_squish(senators2)
-#senators2
+#hrc[28] 
 
-senators2 <- as.data.frame(senators2)
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+reps1 <- hrc[28] #extract page from PDF document
 
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
 
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
+reps1 <- reps1[[1]] #Only extract information we want
 
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
+#reps1
 
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
+reps1 <- str_squish(reps1) #remove all excess white space
 
-hrc_rep <- bind_rows(hrc_rep, senators2)
-
-################## Page 29
-
-#hrc[29]
-senators2 <- hrc[29]
-senators2 <- strsplit(senators2, "\n")
-senators2 <- senators2[[1]]
-#senators2
-senators2 <- str_squish(senators2)
-#senators2
+#reps1
 
 #new easier method
-senators2 <- as.data.frame(senators2)
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+reps1 <- as.data.frame(reps1) #transform into DF
+
+#### Check and make any changes to lines that were incorrectly transcribed
+#reps1[22,] = "LESKO AND FOXX/ 13 Jackson, Ronny (R) 0 N/A N/A"
+
+reps1[22,] <- "LESKO AND FOXX/ 13 Jackson, Ronny (R) 0 N/A N/A j j j j j j j j j j j j j j j j j j j j j"
+
+# 
+# 
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#reps1[1,]
+
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
+
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
 
 
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
 
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
 
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
+############### Page 29
 
-hrc_rep <- bind_rows(hrc_rep, senators2)
+#hrc[29] 
 
-################### Page 30
+reps1 <- hrc[29] #extract page from PDF document
 
-#hrc[30]
-senators2 <- hrc[30]
-senators2 <- strsplit(senators2, "\n")
-senators2 <- senators2[[1]]
-#senators2
-senators2 <- str_squish(senators2)
-#senators2
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
 
-senators2 <- as.data.frame(senators2)
-senators2 %>% filter(str_detect(senators2, "\\)")) -> senators2
-senators2 <- senators2 %>% filter(senators2 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+reps1 <- reps1[[1]] #Only extract information we want
 
-senators2 %>% separate(senators2, into = c("name", "score1", "score2", "score3", "votes"), 
-                 sep = "\\)") -> senators2
+#reps1
 
-senators2 %>% separate(score1, into = c("score1", "score2", "score3", "score4", "votes"), 
-                 sep = " ") -> senators2
+reps1 <- str_squish(reps1) #remove all excess white space
 
-senators2 <- senators2 %>% select(-score1) %>%
-  rename(score1 = score2, score2 = score3, score3 = score4) %>%
-  select(-votes)
+#reps1
 
-hrc_rep <- bind_rows(hrc_rep, senators2)
+#new easier method
+reps1 <- as.data.frame(reps1) #transform into DF
+
+#### Check and make any changes to lines that were incorrectly transcribed
+#reps1[22,] = "LESKO AND FOXX/ 6 Cline, Ben (R) 0 0 N/A"
+
+reps1[22,] <- "LESKO AND FOXX/ 6 Cline, Ben (R) 0 0 N/A j j j j j j j j j j j j j j j j j j j j j"
+
+# 
+# 
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#reps1[1,]
+
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
+
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
+
+
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
+
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
+
+
+############### Page 30
+
+#hrc[30] 
+
+reps1 <- hrc[30] #extract page from PDF document
+
+reps1 <- strsplit(reps1, "\n") #Separate strings by new lines
+
+reps1 <- reps1[[1]] #Only extract information we want
+
+#reps1
+
+reps1 <- str_squish(reps1) #remove all excess white space
+#Removing the extra white space reduces the votes for the Delegates from the territories 
+
+#reps1
+
+#new easier method
+reps1 <- as.data.frame(reps1) #transform into DF
+
+#### Check and make any changes to lines that were incorrectly transcribed
+#reps1[22,] = "LESKO AND FOXX/ 6 Cline, Ben (R) 0 0 N/A"
+
+# reps1[22,] <- "LESKO AND FOXX/ 6 Cline, Ben (R) 0 0 N/A j j j j j j j j j j j j j j j j j j j j j"
+
+# 
+# 
+reps1 %>% filter(str_detect(reps1, "\\)")) -> reps1 #filter and only keep rows with ) - keeps all rows with political affiliation (R)/(D)
+
+#reps1[1,]
+
+#one row is retained that is not needed - remove
+reps1 <- reps1 %>% filter(reps1 != "REPRESENTATIVE (Party) SCORE SCORE SCORE")
+
+reps1 %>% separate(reps1, into = c("name", "score1", "score2", "score3", "votes"), 
+                 sep = "\\)") -> reps1
+
+#separate votes into different categories
+reps1 %>% separate(score1, into = c("score1", "score2", "score3", "score4", 
+                                    "vote_equalityAct",
+                                    "vote_AmericanDream",
+                                    "vote_backgroundChecks",
+                                    "vote_johnLewis",
+                                    "vote_violenceAgainstWomen",
+                                    "vote_LGBTQ_BECEIA",
+                                    "vote_leskoFoxx",
+                                    "vote_womensHealth",
+                                    "vote_FVPSA",
+                                    "vote_globalRespect",
+                                    "vote_LGBTQIdataInclusion",
+                                    "vote_saferCommunities",
+                                    "vote_RMA_first",
+                                    "vote_RMA_final",
+                                    "vote_impeachment",
+                                    "vote_DNHA",
+                                    "vote_TFPA",
+                                    "vote_SSIA",
+                                    "vote_ECDFA",
+                                    "vote_PrEP",
+                                    "vote_anti-transDischarge"), 
+                 sep = " ") -> reps1
+
+
+reps1 <- reps1 %>% select(-score1, -votes) %>%
+  rename(score1 = score2, score2 = score3, score3 = score4)
+
+#Fix the voting records for Territory Delegates
+
+reps1 <- reps1 %>%
+  mutate(vote_equalityAct = case_when( #change values to NA for Equality Act
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_equalityAct
+  ),
+  #American Dream
+  vote_AmericanDream = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_AmericanDream
+  ),
+  #Background checks
+  vote_backgroundChecks = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_backgroundChecks
+  ),
+  #vote John Lewis
+  vote_johnLewis = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_johnLewis
+  ),
+  #violence against women
+  vote_violenceAgainstWomen = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_violenceAgainstWomen
+  ),
+  #LGBTQIA BECEIA
+  vote_LGBTQ_BECEIA = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_LGBTQ_BECEIA
+  ),
+  #Lesko Foxx
+  vote_leskoFoxx = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_leskoFoxx
+  ),
+  #women's health
+  vote_womensHealth = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_womensHealth
+  ),
+  #FVPSA
+  vote_FVPSA = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_FVPSA
+  ),
+  #Global Respect
+  vote_globalRespect = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_globalRespect
+  ),
+  #LGBTQIA Data Inclusion
+  vote_LGBTQIdataInclusion = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_LGBTQIdataInclusion
+  ),
+  #Safter Communities
+  vote_saferCommunities = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_saferCommunities
+  ),
+  #RMA first
+  vote_RMA_first = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_RMA_first
+  ),
+  #RMA Final
+  vote_RMA_final = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_RMA_final
+  ),
+  #Impeachment
+  vote_impeachment = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ vote_impeachment
+  ),
+  #DNHA
+  vote_DNHA = case_when(
+    name == "AL Amata Coleman (R" ~ "j",
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ "v",
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ "j",
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ "v",
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ "j",
+    name == "AL Plaskett, Stacey (D" ~ "j",
+    TRUE ~ vote_DNHA
+  ),
+  #TFPA
+  vote_TFPA = case_when(
+    name == "AL Amata Coleman (R" ~ "j",
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ "v",
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ "j",
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ "v",
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ "j",
+    name == "AL Plaskett, Stacey (D" ~ "j",
+    TRUE ~ vote_TFPA
+  ),
+  #SSIA
+  vote_SSIA = case_when(
+    name == "AL Amata Coleman (R" ~ "j",
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ "v",
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ "v",
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ "j",
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ "j",
+    name == "AL Plaskett, Stacey (D" ~ "j",
+    TRUE ~ vote_SSIA
+  ),
+  #ECDFA
+  vote_ECDFA = case_when(
+    name == "AL Amata Coleman (R" ~ "j",
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ "v",
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ "v",
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ "v",
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ "v",
+    name == "AL Plaskett, Stacey (D" ~ "v",
+    TRUE ~ vote_ECDFA
+  ),
+  #PrEP Access
+  vote_PrEP = case_when(
+    name == "AL Amata Coleman (R" ~ "j",
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ "v",
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ "v",
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ "v",
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ "j",
+    name == "AL Plaskett, Stacey (D" ~ "j",
+    TRUE ~ vote_PrEP
+  ),
+  #Anti-trans discharge
+  `vote_anti-transDischarge` = case_when(
+    name == "AL Amata Coleman (R" ~ NA_character_,
+    name == "O IMPEACHMENT AL Norton, Eleanor Holmes (D" ~ NA_character_,
+    name == "P DNHA AL San Nicolas, Michael F.Q. (D" ~ NA_character_,
+    name == "Q TFPA AL Sablan, Gregorio (D" ~ NA_character_,
+    name == "R SSIA AL González-Colón, Jenniffer (R" ~ NA_character_,
+    name == "AL Plaskett, Stacey (D" ~ NA_character_,
+    TRUE ~ `vote_anti-transDischarge`
+  ))
+
+
+#combine
+hrc_reps <- bind_rows(hrc_reps, reps1)
 
 
 ```
@@ -1161,14 +1959,27 @@ Here are the members of the 117th Congress and their HRC scores on equality.
 ### Representatives
 
 ```{r}
-hrc_rep <- hrc_rep %>%
+hrc_reps <- hrc_reps %>%
   rename(score_117 = score1,
          score_116 = score2,
          score_115 = score3)
 
+#CHANGE THE CHARACTERS RE VOTING
+
+hrc_reps %>% mutate_at(vars(5:25),
+                            funs(case_when(
+  . == "j" ~ "anti-HRC",
+  . =="v" ~ "pro-HRC",
+  . == "J" ~ "did not vote",
+  . == "P" ~ "voted present",
+  TRUE ~ .
+))) -> hrc_reps
+
+
+
 #clean up names
 
-hrc_rep %>% separate(name, into = c("Name", "ID"),
+hrc_reps %>% separate(name, into = c("Name", "ID"),
                      sep = "\\(") %>%
   separate(Name, into = c("spot1", "spot2", "spot3", "spot4", "spot5",
                           "spot6", "spot7","spot8","spot9","spot10"),
@@ -1178,7 +1989,7 @@ hrc_rep %>% separate(name, into = c("Name", "ID"),
   rename(last_name = spot2, first_name = spot3) -> hrc_rep_df
 
 
-hrc_rep %>% separate(name, into = c("Name", "ID"),
+hrc_reps %>% separate(name, into = c("Name", "ID"),
                      sep = "\\(") %>%
   separate(Name, into = c("spot1", "spot2", "spot3", "spot4", "spot5",
                           "spot6", "spot7","spot8","spot9","spot10"),
@@ -1201,7 +2012,7 @@ hrc_rep %>% separate(name, into = c("Name", "ID"),
 hrc_rep_df <- bind_rows(hrc_rep_df, hrc_rep_df2)
 
 
-hrc_rep %>% separate(name, into = c("Name", "ID"),
+hrc_reps %>% separate(name, into = c("Name", "ID"),
                      sep = "\\(") %>%
   separate(Name, into = c("spot1", "spot2", "spot3", "spot4", "spot5",
                           "spot6", "spot7","spot8","spot9","spot10"),
@@ -1214,7 +2025,7 @@ hrc_rep %>% separate(name, into = c("Name", "ID"),
 
 hrc_rep_df <- bind_rows(hrc_rep_df, hrc_rep_df2)
 
-hrc_rep %>% separate(name, into = c("Name", "ID"),
+hrc_reps %>% separate(name, into = c("Name", "ID"),
                      sep = "\\(") %>%
   separate(Name, into = c("spot1", "spot2", "spot3", "spot4", "spot5",
                           "spot6", "spot7","spot8","spot9","spot10"),
@@ -1233,7 +2044,7 @@ hrc_rep %>% separate(name, into = c("Name", "ID"),
 hrc_rep_df <- bind_rows(hrc_rep_df, hrc_rep_df2)
 
 
-hrc_rep %>% separate(name, into = c("Name", "ID"),
+hrc_reps %>% separate(name, into = c("Name", "ID"),
                      sep = "\\(") %>%
   separate(Name, into = c("spot1", "spot2", "spot3", "spot4", "spot5",
                           "spot6", "spot7","spot8","spot9","spot10"),
@@ -1252,7 +2063,7 @@ hrc_rep %>% separate(name, into = c("Name", "ID"),
 
 hrc_rep_df <- bind_rows(hrc_rep_df, hrc_rep_df2)
 
-hrc_rep %>% separate(name, into = c("Name", "ID"),
+hrc_reps %>% separate(name, into = c("Name", "ID"),
                      sep = "\\(") %>%
   separate(Name, into = c("spot1", "spot2", "spot3", "spot4", "spot5",
                           "spot6", "spot7","spot8","spot9","spot10"),
@@ -1319,6 +2130,18 @@ hrc_sen <- hrc_sen %>%
   rename(score_117 = score1,
          score_116 = score2,
          score_115 = score3)
+
+#CHANGE THE CHARACTERS RE VOTING
+
+hrc_sen %>% mutate_at(vars(5:24),
+                            funs(case_when(
+  . == "j" ~ "anti-HRC",
+  . =="v" ~ "pro-HRC",
+  . == "J" ~ "did not vote",
+  . == "P" ~ "voted present",
+  TRUE ~ .
+))) -> hrc_sen
+
 
 #clean up names
 
@@ -1580,7 +2403,13 @@ asha_2022_sen <- asha_2022_sen %>%
     score_117 <= 50 ~ "26-50",
     score_117 <= 75 ~ "51-75",
     score_117 <= 100 ~ "76-100"
-  ))
+  ),
+    groups_116 = case_when(
+    score_116 == 0 ~ "0",
+    score_116 <= 25 ~ "1-25",
+    score_116 <= 50 ~ "26-50",
+    score_116 <= 75 ~ "51-75",
+    score_116 <= 100 ~ "76-100"))
 
 asha_2022_sen %>% 
   group_by(groups_117) %>%
@@ -1675,7 +2504,13 @@ asha_2022_rep <- asha_2022_rep %>%
     score_117 <= 50 ~ "26-50",
     score_117 <= 75 ~ "51-75",
     score_117 <= 100 ~ "76-100"
-  ))
+  ),
+    groups_116 = case_when(
+    score_116 == 0 ~ "0",
+    score_116 <= 25 ~ "1-25",
+    score_116 <= 50 ~ "26-50",
+    score_116 <= 75 ~ "51-75",
+    score_116 <= 100 ~ "76-100"))
 
 asha_2022_rep %>% 
   group_by(groups_117) %>%
@@ -1798,7 +2633,13 @@ asha_2020_sen <- asha_2020_sen %>%
     score_117 <= 50 ~ "26-50",
     score_117 <= 75 ~ "51-75",
     score_117 <= 100 ~ "76-100"
-  ))
+  ),
+    groups_116 = case_when(
+    score_116 == 0 ~ "0",
+    score_116 <= 25 ~ "1-25",
+    score_116 <= 50 ~ "26-50",
+    score_116 <= 75 ~ "51-75",
+    score_116 <= 100 ~ "76-100"))
 
 asha_2020_sen %>% 
   group_by(groups_117) %>%
@@ -1937,6 +2778,13 @@ asha_2020_rep <- asha_2020_rep %>%
     score_117 <= 50 ~ "26-50",
     score_117 <= 75 ~ "51-75",
     score_117 <= 100 ~ "76-100"
+  ),
+  groups_116 = case_when(
+    score_116 == 0 ~ "0",
+    score_116 <= 25 ~ "1-25",
+    score_116 <= 50 ~ "26-50",
+    score_116 <= 75 ~ "51-75",
+    score_116 <= 100 ~ "76-100"
   ))
 
 asha_2020_rep %>% 
@@ -1997,6 +2845,86 @@ In 2020, ASHA-PAC donated:
 96,500 or approximately 36.35% of their total campaign spending went towards campaigns with an average HRC equality score $\leq$ 50 in 2020. 
 
 
+# ASHA-PAC Spending over time{.tabset}
+
+```{r}
+# ashaPAC has money spent and year, and role
+
+#Make a separate df to examine spending over time, extracting only relevant information and aligning variables to graph the data
+
+asha_2020_rep %>% 
+  mutate(year_chamber = "2020 HoR",
+         hrc_category = groups_116) %>%
+  select(name, party, state, ASHA_PAC_total, year_chamber, hrc_category) -> over_time
+
+asha_2020_sen%>% 
+  mutate(year_chamber = "2020 Senate",
+         hrc_category = groups_116) %>%
+  select(name, party, state, ASHA_PAC_total, year_chamber, hrc_category) %>%
+  bind_rows(over_time) -> over_time
+
+asha_2022_rep%>% 
+  mutate(year_chamber = "2022 HoR",
+         hrc_category = groups_117) %>%
+  select(name, party, state, ASHA_PAC_total, year_chamber, hrc_category) %>%
+  bind_rows(over_time) -> over_time
+
+asha_2022_sen%>% 
+  mutate(year_chamber = "2022 Senate",
+         hrc_category = groups_117) %>%
+  select(name, party, state, ASHA_PAC_total, year_chamber, hrc_category) %>%
+  bind_rows(over_time) -> over_time
+
+```
 
 
+## Static Plot
+
+```{r}
+
+set.seed(20)
+#graph spending
+
+over_time %>%
+  filter(!is.na(hrc_category)) %>%
+  ggplot(aes(year_chamber, ASHA_PAC_total, color = hrc_category)) + 
+  geom_jitter(width = .2, 
+              height = 200, 
+              alpha = .8,
+              size = 5)+
+  theme_minimal() +
+  theme(panel.background = element_rect(fill = "lightgray"))+
+  labs(x = "Year & Chamber of Congress",
+       y = "ASHA-PAC Campaign Contribution ($)") +
+ # scale_color_discrete(name = "HRC Score") + 
+  scale_color_brewer(palette = "YlOrRd", 
+                     direction = -1,
+                     name = "HRC Score")
+```
+
+## Reactive Plot
+
+```{r}
+
+set.seed(20)
+#graph spending
+
+p <- over_time %>%
+  filter(!is.na(hrc_category)) %>%
+  ggplot(aes(year_chamber, ASHA_PAC_total, color = hrc_category)) + 
+  geom_jitter(width = .2, 
+              height = 200, 
+              alpha = .8,
+              size = 5)+
+  theme_minimal() +
+  theme(panel.background = element_rect(fill = "lightgray"))+
+  labs(x = "Year & Chamber of Congress",
+       y = "ASHA-PAC Campaign Contribution ($)") +
+ # scale_color_discrete(name = "HRC Score") + 
+  scale_color_brewer(palette = "YlOrRd", 
+                     direction = -1,
+                     name = "HRC Score")
+
+ggplotly(p)
+```
 
